@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Summary Page</title>
+</head>
+<body>
+
+    <h2>Order Summary</h2>
+    
+    <p>Customer Name: <span id="custName"></span></p>
+    <p>Product Name: <span id="prodName"></span></p>
+    <p>Quantity: <span id="qty"></span></p>
+    <p>Total Amount: PHP <span id="total"></span></p>
+    <p>Pickup Method: <span id="method"></span></p>
+    
+    <div id="addrDiv" style="display:none;">
+        <p>Address: <span id="addr"></span></p>
+    </div>
+
+    <h3>Thank you for your order!</h3>
+
+    <script>
+        function getCookie(key) {
+            let keyEq = key + "=";
+            let cookies = document.cookie.split(";");
+
+            for (let i = 0; i < cookies.length; i++) {
+                let c = cookies[i];
+                if (c.charAt(0) == " ") {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(keyEq) == 0) {
+                    return c.substring(keyEq.length);
+                }
+            }
+            return null;
+        }
+
+        function getLocal(key) {
+            return localStorage.getItem(key);
+        }
+
+        let name = getCookie("customerName");
+        let variant = getLocal("variant");
+        let qty = getLocal("qty");
+        let pickup = getLocal("pickup");
+        let address = getLocal("address");
+
+        if (variant != null) {
+            document.getElementById("custName").innerText = name;
+            document.getElementById("prodName").innerText = variant;
+            document.getElementById("qty").innerText = qty;
+            document.getElementById("method").innerText = pickup;
+
+            let unitPrice = prices[variant] || 0;
+            let totalAmount = unitPrice * parseInt(qty);
+            document.getElementById("total").innerText = totalAmount;
+
+            if (pickup == "Delivery") {
+                document.getElementById("addrDiv").style.display = "block";
+                document.getElementById("addr").innerText = address;
+            }
+        }
+    </script>
+
+</body>
+</html>

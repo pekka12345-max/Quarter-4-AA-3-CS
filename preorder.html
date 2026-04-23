@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pre-Order Form</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 50px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, select {
+      width: 95%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    #terms {
+      width: 10%;
+    }
+
+    button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Project MANTA Pre-Order</h2>
+
+  <div id="errorMsg" class="error"></div>
+
+  <form onsubmit="return handleOrder()">
+    
+    <label>Name:</label>
+    <input type="text" id="name">
+
+    <label>Product:</label>
+    <select id="variant">
+      <option value="">Select</option>
+      <option value="Small">Small</option>
+      <option value="Medium">Medium</option>
+      <option value="Large">Large</option>
+    </select>
+
+    <label>Quantity:</label>
+    <input type="number" id="quantity">
+
+    <label>Pickup Method:</label>
+    <select id="pickup">
+      <option value="">Select</option>
+      <option value="Delivery">Delivery</option>
+      <option value="Meetup">Meetup</option>
+    </select>
+
+    <label>Address (for delivery only):</label>
+    <input type="text" id="address">
+
+    <label>
+      <input type="checkbox" id="terms"> I accept terms
+    </label>
+    <br><br>
+
+    <button type="button" onclick="loadPreviousOrder()">Load Previous Order</button>
+    <button type="submit">Submit</button>
+
+  </form>
+</div>
+
+<script>
+    function setCookie(key, value, maxAgeSeconds, path) {
+        let cookieStr = key + "=" + value + ";";
+        if(maxAgeSeconds > -1) {
+            cookieStr += " max-age=" + maxAgeSeconds + ";";
+        }
+        cookieStr += " path=/" + path;
+        document.cookie = cookieStr;
+    }
+
+    function getCookie(key) {
+        let keyEq = key + "=";
+        let cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            let c = cookies[i];
+            if (c.charAt(0) == " ") { c = c.substring(1); }
+            if (c.indexOf(keyEq) == 0) {
+                return c.substring(keyEq.length);
+            }
+        }
+        return null;
+    }
+
+    function deleteCookie(key) {
+        document.cookie = key + "=; max-age=0; path=/";
+    }
+
+    function setLocal(key, value) {
+        localStorage.setItem(key, value);
+    }
+
+    function getLocal(key) {
+        return localStorage.getItem(key);
+    }
+
+    function handleOrder() {
+        document.getElementById("errorMsg").innerHTML = "";
+
+        let name = document.getElementById("name").value;
+        let variant = document.getElementById("variant").value;
+        let qty = document.getElementById("quantity").value;
+        let pickup = document.getElementById("pickup").value;
+        let address = document.getElementById("address").value;
+        let terms = document.getElementById("terms").checked;
+
+        let errors = [];
+        if (name == "") errors.push("name");
+        if (variant == "") errors.push("product");
+        if (qty == "" || qty <= 0) errors.push("quantity");
+        if (pickup == "") errors.push("pickup method");
+        if (pickup == "Delivery" && address == "") errors.push("address");
+        if (!terms) errors.push("terms");
+
+        if (errors.length > 0) {
+            document.getElementById("errorMsg").innerText = "Missing/Invalid: " + errors.join(", ");
+            return false;
+        }
+
+        setCookie("customerName", name, 3600, ""); // 1 hour
+        
+        setLocal("variant", variant);
+        setLocal("qty", qty);
+        setLocal("pickup", pickup);
+        setLocal("address", address);
+
+        window.location.href = "summary.html";
+        return false;
+    }
+
+    function loadPreviousOrder() {
+        let name = getCookie("customerName");
+        let variant = getLocal("variant");
+        let qty = getLocal("qty");
+        let pickup = getLocal("pickup");
+        let address = getLocal("address");
+
+        if (name == null && variant == null) {
+            document.getElementById("errorMsg").innerText = "No previous order data";
+        } else {
+            if (name != null) document.getElementById("name").value = name;
+            if (variant != null) document.getElementById("variant").value = variant;
+            if (qty != null) document.getElementById("quantity").value = qty;
+            if (pickup != null) document.getElementById("pickup").value = pickup;
+            if (address != null) document.getElementById("address").value = address;
+        }
+    }
+</script>
+
+
+</body>
+</html>
+
